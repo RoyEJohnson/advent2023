@@ -1,0 +1,47 @@
+<script>
+    console.info('Part 1:', sum(
+        fetchData().map(toGmax).filter(isPossible).map(g => g.n)
+    ));
+    console.info('Part 2:', sum(
+        fetchData().map(toGmax).map(power)
+    ));
+    function sum(arr) {
+        return arr.reduce((a, b) => a + +b, 0); // as numbers
+    }
+    function isPossible(gmax) {
+        const pool = {
+            r: 12,
+            g: 13,
+            b: 14
+        };
+
+        return gmax.r <= pool.r && gmax.g <= pool.g && gmax.b <= pool.b;
+    }
+    function toGmax(game) {
+        const n = game.match(/Game (\d+)/)[1];
+
+        return {
+            n,
+            r: max(game, 'red'),
+            g: max(game, 'green'),
+            b: max(game, 'blue')
+        };
+    }
+    function max(game, color) {
+        const re = new RegExp(`(\\d+) ${color}`, 'g');
+        const nums = game.match(re).map(s => s.match(/\d+/)[0]);
+
+        return Math.max(...nums);
+    }
+    function fetchData() {
+        return `Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
+Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
+Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
+Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green`.split(/\n/);
+    }
+
+    function power(gmax) {
+        return gmax.r * gmax.b * gmax.g;
+    }
+</script>

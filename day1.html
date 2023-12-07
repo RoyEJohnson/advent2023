@@ -1,0 +1,57 @@
+<script>
+    console.info('Part 1:', sum(fetchData().map(calibrationValue)));
+    console.info('Part 2:', sum(fetchData2().map(calibrationValue2)));
+    function sum(arr) {
+        return arr.reduce((a, b) => a + +b, 0); // as numbers
+    }
+    function firstDigit(str) {
+        return str.match(/\d/)[0];
+    }
+    function lastDigit(str) {
+        return str.match(/.*(\d)/)[1];
+    }
+    function calibrationValue(str) {
+        return firstDigit(str) + lastDigit(str); // strings, not numbers
+    }
+    function fetchData() {
+        return `1abc2
+pqr3stu8vwx
+a1b2c3d4e5f
+treb7uchet`.split(/\n/);
+    }
+    function calibrationValue2(str) {
+        return firstDigit2(str) + lastDigit2(str);
+    }
+    function firstDigit2(str) {
+        const match = str.match(/\d|one|two|three|four|five|six|seven|eight|nine/);
+
+        return toDigit(match[0]);
+    }
+    function lastDigit2(str) {
+        const match = str.match(/.*(\d|one|two|three|four|five|six|seven|eight|nine)/);
+
+        return toDigit(match[1]);
+    }
+    function toDigit(str) {
+        return {
+            one: '1',
+            two: '2',
+            three: '3',
+            four: '4',
+            five: '5',
+            six: '6',
+            seven: '7',
+            eight: '8',
+            nine: '9'
+        }[str] ||  str;
+    }
+    function fetchData2() {
+        return `two1nine
+eightwothree
+abcone2threexyz
+xtwone3four
+4nineeightseven2
+zoneight234
+7pqrstsixteen`.split(/\n/);
+    }
+</script>
