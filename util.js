@@ -13,4 +13,6 @@ function fetchData(file, split=true) {
     return data.split(/\n/);
 }
 
-module.exports = { sum, fetchData };
+function toNumber(str) { return +str; }
+
+module.exports = { sum, fetchData, toNumber };
