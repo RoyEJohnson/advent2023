@@ -1,4 +1,4 @@
-const {fetchData, sum} = require('./util.js');
+const {fetchData} = require('./util.js');
 
 const day = 14;
 let file = 'sample';
