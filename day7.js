@@ -10,7 +10,7 @@ console.info(`D${day}P2 ${file}:`, part2(`./day${day}${file}.txt`));
 file = 'input';
 console.info(`D${day}P2 ${file}:`, part2(`./day${day}${file}.txt`));
 // 246433301 is too low
-
+// 246307620 is too low
 function part1(file) {
     const lines = fetchData(file);
 
@@ -19,12 +19,14 @@ function part1(file) {
 
 function part2(file) {
     const lines = fetchData(file);
+    const compareFn = (a, b) => compareHands(a, b, typeWithJ);
 
-    // lines.slice(0, 20).forEach((line) => {
-    //     const [hand, bit] = line.split(' ');
+    lines.slice(0, 140) //.filter(l => l.indexOf('J') >= 0)
+    .sort(compareFn).forEach((line) => {
+        const [hand, bid] = line.split(' ');
 
-    //     console.info(`${hand} rank: ${typeWithJ(hand)}`);
-    // });
+        console.info(`${hand} rank: ${typeWithJ(hand)}`);
+    });
     return sum(winnings(lines, typeWithJ));
 }
 
@@ -60,9 +62,12 @@ function typeWithJ(hand) {
     const jCount = cards.filter(c => c === 'J').length;
     const njCounts = countCards(nonJ).sort().reverse();
 
-    njCounts[0] += jCount;
+    if (njCounts.length === 0) {
+        njCounts.push(jCount);
+    } else {
+        njCounts[0] += jCount;
+    }
 
-    // console.info(`${hand} counts:`, njCounts);
     return rankHandByCounts(njCounts);
 }
 
