@@ -2,9 +2,13 @@ const {fetchData, sum} = require('./util.js');
 
 const day = 7;
 let file = 'sample';
+let values = '23456789TJQKA';
+
 console.info(`D${day}P1 ${file}:`, part1(`./day${day}${file}.txt`));
 file = 'input';
 console.info(`D${day}P1 ${file}:`, part1(`./day${day}${file}.txt`));
+
+values = 'J23456789TQKA';
 file = 'sample';
 console.info(`D${day}P2 ${file}:`, part2(`./day${day}${file}.txt`));
 file = 'input';
@@ -21,7 +25,9 @@ function part2(file) {
     const lines = fetchData(file);
     const compareFn = (a, b) => compareHands(a, b, typeWithJ);
 
-    lines.slice(0, 140) //.filter(l => l.indexOf('J') >= 0)
+    lines
+    //.slice(0, 140)
+    .filter(l => l.match(/AA/))
     .sort(compareFn).forEach((line) => {
         const [hand, bid] = line.split(' ');
 
@@ -104,7 +110,6 @@ function compareCards(h1, h2) {
 }
 
 function cardValue(card) {
-    const values = '23456789TJQKA';
 
     return values.indexOf(card);
 }
