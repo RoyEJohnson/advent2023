@@ -1,7 +1,11 @@
 const {fetchData, sum} = require('./util.js');
 
+let memo = {};
 console.info('D12P1 sample:', part1('./day12sample.txt'));
 console.info('D12P1 input:', part1('./day12input.txt'));
+
+console.info('D12P2 input:', part2('./day12input.txt'));
+
 
 function part1(file) {
     const lines = fetchData(file);
@@ -13,7 +17,30 @@ function part1(file) {
     return(sum(lines.map(line => countArrangements(line.split(' ')))));
 }
 
+function part2(file) {
+    const lines = fetchData(file);
+    let result = 0;
+
+    for (const line of lines) {
+        const [pattern, runs] = line.split(' ');
+
+        const p2 = Array(5).fill(pattern, 0, 5).join('?');
+        const r2 = Array(5).fill(runs, 0, 5).join(',');
+
+        memo = {};
+        const arrangements = countArrangements([p2, r2]);
+
+        result += arrangements;
+        console.info(pattern);
+    }
+    return result;
+}
+
 function countArrangements([pattern, runs]) {
+    const memoKey = `${pattern},${runs}`;
+
+    if (memoKey in memo) { return memo[memoKey]; }
+
     const [first, ...rest] = runs.split(',');
     const matchFirst = runMatch(first);
     const matchRest = rest.map(n => `[.?]${runMatch(n)}`).join('');
@@ -35,13 +62,15 @@ function countArrangements([pattern, runs]) {
     const firstHash = pattern.indexOf('#');
 
     if (firstHash > -1 && firstHash < reducedFirstMatchIndex) {
+        memo[memoKey] = tail;
         return tail;
     }
 
     const reducedPattern = pattern.substring(reducedFirstMatchIndex);
 
     // console.info('** Using reduced pattern', reducedPattern);
-    return tail + countArrangements([reducedPattern, runs]);
+    memo[memoKey] = tail + countArrangements([reducedPattern, runs]);
+    return memo[memoKey]
 }
 
 function runMatch(n) {
