@@ -3,6 +3,8 @@ const {fetchData} = require('./util.js');
 console.info('D10P1 sample:', part1('./day10sample.txt'));
 console.info('D10P1 input:', part1('./day10input.txt'));
 console.info('D10P2 sample:', part2('./day10sample2.txt'));
+console.info('D10P3 sample:', part2('./day10sample3.txt'));
+console.info('D10P2 input:', part2('./day10input.txt'));
 
 function part1(file) {
     const lines = fetchData(file);
@@ -23,34 +25,45 @@ function part2(file) {
         path.push(nextStep(path, lines));
     }
 
-    console.info('Path', path);
+    // console.info('Path', path);
     const splitLines = lines.map(l => l.split(''));
+    // Corners: left to right, you will hit an L or F first, then a J or 7
+    // L-J counts as 2 verticals; L-7 counts as one
+    // F-7 counts as 2; F-J as one
+    const verticals = []
     for (const [row,col] of path) {
+        if (splitLines[row][col] === '|' ||
+            splitLines[row].slice(col).join('').match(/^L-*7/) ||
+            splitLines[row].slice(col).join('').match(/^F-*J/)
+            )
+        {
+            verticals.push([row, col]);
+        }
+    }
+    for (const [row,col] of path) {
+        splitLines[row][col] = 'p';
+    }
+    for (const [row,col] of verticals) {
         splitLines[row][col] = 'P';
     }
 
-    // For each dot, count the Ps in the column above
-    // and also the Ps in the row to the left
-    // If both are odd, inside
+    // If a . has an odd number of Ps to its left, it is inside
     let insides = 0;
     splitLines.forEach((line, row) => {
+        let pathCrossings = 0;
         line.forEach((symbol, col) => {
-            if (symbol == '.') {
-                const pAbove = splitLines.slice(0, row)
-                    .filter(r => r[col] === 'P').length;
+            if (!'Pp'.includes(symbol)) {
                 const pLeft = line.slice(0, col).filter(s => s === 'P').length;
 
-                // if (pAbove > 0) {
-                //     console.info('**', row, col, pAbove, pLeft);
-                // }
-                if (pAbove %2 && pLeft %2) {
+                if (pLeft %2) {
                     ++insides;
-                    splitLines[row][col] = 'I';
+                    splitLines[row][col] = '*';
                 }
             }
         })
     });
-    console.info('Splitlines', splitLines.map(l => l.join('')));
+    // console.info(splitLines.map(arr => arr.join('')).join('\n'));
+    // 564 is too high
     return insides;
 }
 
