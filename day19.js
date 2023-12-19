@@ -6,17 +6,27 @@ console.info(`D${day}P1 ${file}:`, part1(`./day${day}${file}.txt`));
 file = 'input';
 console.info(`D${day}P1 ${file}:`, part1(`./day${day}${file}.txt`));
 file = 'sample';
-// console.info(`D${day}P2 ${file}:`, part2(`./day${day}${file}.txt`));
-// file = 'input';
-// console.info(`D${day}P2 ${file}:`, part2(`./day${day}${file}.txt`));
+console.info(`D${day}P2 ${file}:`, part2(`./day${day}${file}.txt`));
+file = 'input';
+console.info(`D${day}P2 ${file}:`, part2(`./day${day}${file}.txt`));
 
 function part1(file) {
     const [rawWorkflow, rawTools] = fetchData(file, false).split('\n\n');
     const flows = parseRawWF(rawWorkflow);
     const tools = parseRawTools(rawTools);
-    const accepted = tools.filter(t => process(t, flows, startFlow(t, flows)));
+    const accepted = tools.filter(t => process(t, flows, flows.in));
 
     return sum(accepted.map(rating));
+}
+
+function part2(file) {
+    const [rawWorkflow] = fetchData(file, false).split('\n\n');
+    const flows = parseRawWF(rawWorkflow);
+    const breakpoints = getBreakpoints(flows);
+    const tools = combinations(breakpoints);
+    const accepted = tools.filter(t => process(t, flows, flows.in));
+
+    return sum(accepted.map(t => countToolsInGroup(t, breakpoints)));
 }
 
 function parseRawWF(raw) {
@@ -46,14 +56,6 @@ function parseFlow(flow) {
 
         return {test, dest};
     });
-}
-
-function startFlow(tool, flows) {
-    const initialOrder = Reflect.ownKeys(flows);
-    const key = 'in';
-
-    // console.info(' Start in', key);
-    return flows[key];
 }
 
 function process(tool, flows, flow) {
@@ -90,4 +92,56 @@ function testTool(tool, {test, dest}) {
 
     console.warn('!!!Should not reach!!!', val);
     return 'A';
+}
+
+function getBreakpoints(flows) {
+    const result = {x: [1], m: [1], a: [1], s: [1]};
+
+    for (const testSeries of Object.values(flows)) {
+        for (const {test} of testSeries.filter(s => s.test !== undefined)) {
+            const [key, comp, val] = parseTest(test);
+
+            // A breakpoint is the lowest value of its group
+            result[key].push(comp === '<' ? val : val + 1);
+        }
+    }
+    for (const c of 'xmas') {
+        result[c].sort((a, b) => a - b);
+    }
+    return result;
+}
+
+function parseTest(test) {
+    const [_, key, comp, valS] = test.match(/(\w)(\W)(.*)/);
+    const val = +valS;
+
+    return [key, comp, val];
+}
+
+function combinations(breakpoints) {
+    const result = [];
+
+    for (const x of breakpoints.x) {
+        for (const m of breakpoints.m) {
+            for (const a of breakpoints.a) {
+                for (const s of breakpoints.s) {
+                    result.push({x,m,a,s});
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
+function countToolsInGroup(tool, breakpoints) {
+    result = 1;
+
+    for (const c of 'xmas') {
+        const i = breakpoints[c].indexOf(tool[c]);
+        const nextBp = breakpoints[c][i+1] ?? 4001;
+
+        result *= nextBp - tool[c];
+    }
+    return result
 }
