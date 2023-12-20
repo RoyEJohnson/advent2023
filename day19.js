@@ -24,11 +24,18 @@ function part2(file) {
     const flows = parseRawWF(rawWorkflow);
     const breakpoints = getBreakpoints(flows);
 
+    for (const c of 'xmas') {
+        console.info(`${c}:`, breakpoints[c].length);
+        console.info(breakpoints[c]);
+    }
     return combinations(breakpoints, flows);
 }
 
 function parseRawWF(raw) {
-    const flows = raw.split('\n').map(line => line.split('{'))
+    const flows = raw.split('\n')
+        .map(line => line.replace(/,[^,]*:A,A/, ',A'))
+        .map(line => line.replace(/,[^,]*:R,R/, ',R'))
+        .map(line => line.split('{'))
         .reduce((a, [name, flow]) => {
             a[name] = parseFlow(flow);
             return a;
@@ -98,9 +105,13 @@ function getBreakpoints(flows) {
     for (const testSeries of Object.values(flows)) {
         for (const {test} of testSeries.filter(s => s.test !== undefined)) {
             const [key, comp, val] = parseTest(test);
-
             // A breakpoint is the lowest value of its group
-            result[key].push(comp === '<' ? val : val + 1);
+            const bp = comp === '<' ? val : val + 1;
+            const i = result[key].indexOf(bp);
+
+            if (i < 0) {
+                result[key].push(bp);
+            }
         }
     }
     for (const c of 'xmas') {
@@ -118,8 +129,10 @@ function parseTest(test) {
 
 function combinations(breakpoints, flows) {
     let result = 0;
+    const start = Date.now()/1000;
 
     for (const x of breakpoints.x) {
+        console.info('X', x, ' time:', Date.now()/1000 - start);
         for (const m of breakpoints.m) {
             for (const a of breakpoints.a) {
                 for (const s of breakpoints.s) {
