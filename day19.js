@@ -23,10 +23,8 @@ function part2(file) {
     const [rawWorkflow] = fetchData(file, false).split('\n\n');
     const flows = parseRawWF(rawWorkflow);
     const breakpoints = getBreakpoints(flows);
-    const tools = combinations(breakpoints);
-    const accepted = tools.filter(t => process(t, flows, flows.in));
 
-    return sum(accepted.map(t => countToolsInGroup(t, breakpoints)));
+    return combinations(breakpoints, flows);
 }
 
 function parseRawWF(raw) {
@@ -118,14 +116,25 @@ function parseTest(test) {
     return [key, comp, val];
 }
 
-function combinations(breakpoints) {
-    const result = [];
+function combinations(breakpoints, flows) {
+    let result = 0;
 
     for (const x of breakpoints.x) {
         for (const m of breakpoints.m) {
             for (const a of breakpoints.a) {
                 for (const s of breakpoints.s) {
-                    result.push({x,m,a,s});
+                    const tool = {x,m,a,s};
+                   
+                    if (process(tool, flows, flows.in)) {
+                        let thisCount = 1;
+                        for (const c of 'xmas') {
+                            const i = breakpoints[c].indexOf(tool[c]);
+                            const nextBp = breakpoints[c][i+1] ?? 4001;
+                    
+                            thisCount *= nextBp - tool[c];
+                        }
+                        result += thisCount;
+                    }
                 }
             }
         }
