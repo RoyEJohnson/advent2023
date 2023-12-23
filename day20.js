@@ -33,17 +33,36 @@ function part1(file) {
 
 function part2(file) {
     const system = buildSystem(fetchData(file));
+    const initialState = system.state();
 
-    for (let i = 1; i <= 400000; ++i) {
+    const inputsToRx = ['jm', 'jv', 'qs'];
+    const inputsToThose = inputsToRx.map(id => Object.keys(initialState[id])).flat();
+
+    const hiCounters = inputsToThose.reduce((a, b) => {
+        a[b] = [];
+        return a;
+    }, {});
+
+    const limit = (2048 * 16) + 2;
+    for (let i = 1; i <= limit; ++i) {
         system.beamQueue.push({beam: LO, from: 'button', dest: 'broadcaster'});
         system.process();
+        const state = system.state();
+
+        for (const k of inputsToThose) {
+            if (state[k]) {
+                hiCounters[k].push(i);
+                if (hiCounters[k].length > 3) {
+                    hiCounters[k] = hiCounters[k].slice(-3);
+                }
+            }
+        }
+        if (i > limit - 4) {
+            console.info('JV?', state.jv);
+        }
     }
 
-    const state = system.state();
-
-    console.info('jm', state.jm);
-    console.info('jv', state.jv);
-    console.info('qs', state.qs);
+    return hiCounters;
 }
 
 function buildSystem(moduleSpecs) {
